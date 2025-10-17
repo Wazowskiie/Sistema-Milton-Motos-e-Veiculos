@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendas — Milton Motos e Peças</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--brand-red:#C62828;--brand-blue:#0D47A1;--bg:#0d1220;--panel:#0f1628;--panel-2:#0b1220;--muted:#94a3b8;--text:#e5e7eb;--danger:#ef4444;--radius:18px;--shadow-lg:0 18px 40px rgba(0,0,0,.45);--shadow-md:0 10px 24px rgba(0,0,0,.35)}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,rgba(13,71,161,.25),transparent 40%),radial-gradient(1000px 500px at -10% 20%,rgba(198,40,40,.2),transparent 45%),var(--bg);color:var(--text)}
+    .app{display:grid;grid-template-rows:auto 1fr;min-height:100dvh}
+    .header{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,rgba(16,24,39,.9),rgba(16,24,39,.7));border-bottom:1px solid rgba(255,255,255,.06);backdrop-filter:blur(8px)}
+    .header-inner{max-width:1200px;margin:0 auto;display:flex;gap:16px;align-items:center;padding:14px 20px}
+    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#c62828,#0d47a1);box-shadow:var(--shadow-md)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+    .nav{margin-left:auto;display:flex;gap:8px}
+    .nav a{padding:10px 14px;border-radius:10px;color:#cbd5e1;text-decoration:none}
+    .nav a.active,.nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+    .container{max-width:1200px;margin:0 auto;padding:24px 20px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:18px}
+    .toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+    .search{display:flex;align-items:center;gap:10px;flex:1;min-width:280px;background:#0b1324;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px}
+    .search input{flex:1;background:transparent;border:0;outline:0;color:var(--text)}
+    .btn{cursor:pointer;border:0;border-radius:12px;padding:10px 14px;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:linear-gradient(135deg,#0D47A1,#0a3a86);color:#fff;box-shadow:var(--shadow-md)}
+    .btn-ghost{background:transparent;color:var(--text)}
+    .btn-danger{background:linear-gradient(135deg,#ef4444,#c81e1e);color:#fff}
+    .table-wrap{overflow:auto;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:820px}
+    thead th{position:sticky;top:0;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));text-align:left;padding:14px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#a6b4c7}
+    tbody td{padding:16px 12px;border-top:1px solid rgba(255,255,255,.06)}
+    tbody tr:hover{background:rgba(255,255,255,.03)}
+    .toast{position:fixed;right:16px;bottom:16px;display:grid;gap:8px;z-index:70}
+    .toast .msg{background:#0f1628;border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:12px}
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:16px;z-index:60}
+    .modal{width:100%;max-width:680px;background:#0f1628;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:var(--shadow-lg)}
+    .modal header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .modal .body{padding:18px;display:grid;gap:12px}
+    .modal .footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 18px;border-top:1px solid rgba(255,255,255,.06)}
+    .field{display:grid;gap:6px}
+    .field label{font-size:13px;color:#a6b4c7}
+    .field input,.field select,.field textarea{background:#0b1324;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#e5e7eb}
+  </style>
+</head>
+<body>
+<script>(()=>{ if(!localStorage.getItem('usuario')) location.href='login-cadastro.html'; })();</script>
+<div class="app">
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M5 17h14l-1 3H6l-1-3Zm13.5-4c.83 0 1.5.67 1.5 1.5S19.33 16 18.5 16 17 15.33 17 14.5s.67-1.5 1.5-1.5ZM5.5 13c.83 0 1.5.67 1.5 1.5S6.33 16 5.5 16 4 15.33 4 14.5 4.67 13 5.5 13ZM3 6h9l3 3h6v5H3V6Z"/></svg></div>
+      <div class="brand">Milton Motos e Peças</div>
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="produtos.html">Peças</a>
+        <a class="active" href="#">Vendas</a>
+        <a href="estoque.html">Estoque</a>
+        <a href="#" id="btnLogout" class="btn btn-ghost">⎋ Sair</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <article class="card" style="margin-bottom:12px">
+      <h1 style="margin:8px 0 6px;font-size:clamp(22px,3.2vw,30px)">Vendas</h1>
+      <p style="margin:0;color:#cbd5e1">Liste e registre vendas com rapidez. (Implementação inicial: 1 item por venda)</p>
+    </article>
+
+    <section class="toolbar">
+      <div class="search" role="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 0 0 1.57-4.23 6.5 6.5 0 1 0-6.5 6.5 6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/></svg>
+        <input id="busca" type="search" placeholder="Buscar por cliente, nº ou produto...">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" id="btnNova">➕ Nova venda</button>
+        <button class="btn btn-ghost" id="btnAtualizar">Atualizar</button>
+        <button class="btn btn-ghost" id="btnExportar">Exportar CSV</button>
+      </div>
+    </section>
+
+    <section class="table-wrap" role="region" aria-label="Vendas">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Nº</th>
+            <th>Cliente</th>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Total</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-vendas"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="toast" id="toast" aria-live="polite"></footer>
+</div>
+
+<!-- Modal Nova Venda -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <header>
+      <h3 style="margin:0">Nova venda</h3>
+      <button class="btn btn-ghost" id="btnClose">✖</button>
+    </header>
+    <form id="formVenda">
+      <div class="body">
+        <div class="field"><label for="cliente">Cliente</label><input id="cliente" name="cliente" type="text" placeholder="Nome do cliente"></div>
+        <div class="field"><label for="produtoId">Produto</label><select id="produtoId" name="produtoId" required></select></div>
+        <div class="field"><label for="qtd">Quantidade</label><input id="qtd" name="quantidade" type="number" min="1" value="1" required></div>
+        <div class="field"><label for="preco">Preço unitário</label><input id="preco" name="preco" type="number" step="0.01" min="0" required></div>
+        <div class="field"><label for="obs">Observação</label><textarea id="obs" name="observacao" rows="2"></textarea></div>
+      </div>
+      <div class="footer">
+        <button type="button" class="btn btn-ghost" id="btnCancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(()=>{
+  const API = location.origin;
+  const API_VENDAS = API + '/api/vendas';
+  const API_PRODUTOS = API + '/api/produtos';
+  const auth = localStorage.getItem('token') ? { 'Authorization':'Bearer '+localStorage.getItem('token') } : {};
+
+  const tbody = document.getElementById('tbody-vendas');
+  const busca = document.getElementById('busca');
+  const btnNova = document.getElementById('btnNova');
+  const btnAtualizar = document.getElementById('btnAtualizar');
+  const btnExportar = document.getElementById('btnExportar');
+  const btnLogout = document.getElementById('btnLogout');
+  const toastBox = document.getElementById('toast');
+
+  const modal = document.getElementById('modalBackdrop');
+  const btnClose = document.getElementById('btnClose');
+  const btnCancel = document.getElementById('btnCancel');
+  const form = document.getElementById('formVenda');
+  const selProduto = document.getElementById('produtoId');
+  const inputPreco = document.getElementById('preco');
+
+  let produtos = [];
+  let ctrl; // abort controller
+
+  function toast(msg,isErr=false){
+    const el = document.createElement('div'); el.className='msg'; el.style.border='1px solid '+(isErr?'#ef44448f':'#10b9818f'); el.textContent=msg; toastBox.appendChild(el); setTimeout(()=>el.remove(),3200);
+  }
+  function fmtBRL(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+  function debounce(fn,wait=200){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),wait); }; }
+
+  document.getElementById('btnLogout').onclick=()=>{localStorage.clear();location.href='login-cadastro.html'};
+  busca.addEventListener('input', debounce(handleSearch, 200));
+  btnNova.onclick=()=>openModal();
+  btnClose.onclick=btnCancel.onclick=()=>closeModal();
+  modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+  btnExportar.onclick=exportCSV;
+  btnAtualizar.onclick=loadVendas;
+
+  tbody.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    const tr = btn.closest('tr'); const venda = tr? tr._data : null;
+    if(btn.dataset.action==='delete' && venda?._id){ deleteVenda(venda._id); }
+  });
+
+  function handleSearch(){
+    const t = (busca.value||'').toLowerCase();
+    for(const tr of tbody.querySelectorAll('tr')){
+      tr.style.display = tr.textContent.toLowerCase().includes(t) ? '' : 'none';
+    }
+  }
+
+  function renderVendas(list){
+    const frag = document.createDocumentFragment();
+    for(const v of list){
+      const tr = document.createElement('tr');
+      tr._data = v;
+      const dt = new Date(v.createdAt || v.data || Date.now());
+      add(td(fmtDate(dt)), td(v.numero||v._id?.slice(-6)||'-'), td(v.cliente||'-'), td(itemNome(v)), td(qtdItem(v)), td(fmtBRL(v.total||calcTotal(v))), actions());
+      frag.appendChild(tr);
+      function add(...cells){ cells.forEach(c=>tr.appendChild(c)); }
+    }
+    tbody.replaceChildren(frag);
+    function td(t){ const e=document.createElement('td'); e.textContent=String(t); return e; }
+    function actions(){ const e=document.createElement('td'); e.style.cssText='text-align:right;display:flex;gap:6px;justify-content:flex-end'; const del=document.createElement('button'); del.className='btn btn-danger'; del.dataset.action='delete'; del.title='Excluir'; del.textContent='🗑️'; e.appendChild(del); return e; }
+    function fmtDate(d){ return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+    function itemNome(v){ const it = (v.itens && v.itens[0]) || v.item; return v.produto?.nome || it?.produto?.nome || it?.produtoNome || '-'; }
+    function qtdItem(v){ const it=(v.itens&&v.itens[0])||v.item; return it?.quantidade || v.quantidade || 1; }
+    function calcTotal(v){ const it=(v.itens&&v.itens[0])||v.item; return (it?.precoUnitario||v.preco||0)*(it?.quantidade||v.quantidade||1); }
+  }
+
+  async function loadProdutos(){
+    try{ const r = await fetch(API_PRODUTOS, {headers:{...auth}}); const d = await r.json(); produtos = Array.isArray(d)?d:(d.produtos||[]); selProduto.innerHTML='<option value="">Selecione...</option>'+produtos.map(p=>`<option value="${p._id}">${p.codigo? p.codigo+' — ' : ''}${p.nome}</option>`).join(''); }
+    catch(err){ toast('Não foi possível carregar produtos', true); }
+  }
+
+  function openModal(){ form.reset(); modal.style.display='flex'; if(!produtos.length) loadProdutos(); }
+  function closeModal(){ modal.style.display='none'; }
+
+  selProduto.addEventListener('change',()=>{
+  const p = produtos.find(x=>x._id===selProduto.value);
+  if (p) inputPreco.value = (p.precoVenda ?? p.preco ?? 0);
+});
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const produtoId = selProduto.value; const quantidade = Number(document.getElementById('qtd').value); const preco = Number(inputPreco.value||0);
+    const cliente = document.getElementById('cliente').value.trim(); const observacao = document.getElementById('obs').value.trim();
+    const payload = { cliente, itens:[{ produtoId, quantidade, precoUnitario:preco }], observacao };
+    try{
+      const r = await fetch(API_VENDAS, {method:'POST', headers:{'Content-Type':'application/json', ...auth}, body: JSON.stringify(payload)});
+      const data = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(data.error||data.message||('Falha '+r.status));
+      toast('Venda registrada!'); closeModal(); loadVendas();
+    }catch(err){ toast('Erro: '+err.message,true); }
+  });
+
+  async function deleteVenda(id){
+    if(!confirm('Excluir venda?')) return;
+    try{ const r = await fetch(`${API_VENDAS}/${id}`, {method:'DELETE', headers:{...auth}}); const d = await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||d.message||('Falha '+r.status)); toast('Venda excluída.'); loadVendas(); }
+    catch(err){ toast('Erro: '+err.message,true); }
+  }
+
+  async function loadVendas(){
+    try{
+      ctrl?.abort(); ctrl = new AbortController(); btnAtualizar.disabled=true;
+      const r = await fetch(API_VENDAS, {headers:{...auth}, signal: ctrl.signal});
+      if(!r.ok) throw new Error('Falha '+r.status);
+      const d = await r.json(); const list = Array.isArray(d)?d:(d.vendas||[]);
+      renderVendas(list);
+    }catch(err){ if(err.name!=='AbortError') toast('Erro ao carregar vendas: '+err.message,true); }
+    finally{ btnAtualizar.disabled=false; }
+  }
+
+  function exportCSV(){
+    const linhas = [...document.querySelectorAll('table tr')].map(tr=>{ const cells=[...tr.children].slice(0,-1); return cells.map(td=>'"'+td.textContent.replace(/"/g,'""')+'"').join(','); });
+    const blob = new Blob([linhas.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob); const a=Object.assign(document.createElement('a'),{href:url,download:'vendas.csv'}); document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  loadVendas();
+})();
+</script>
+</body>
+</html>

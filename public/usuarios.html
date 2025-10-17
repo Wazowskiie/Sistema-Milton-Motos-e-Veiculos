@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuários Cadastrados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --vermelho: #d62828;
+      --azul: #003049;
+      --branco: #ffffff;
+      --cinza: #f9f9f9;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--cinza);
+      color: var(--azul);
+    }
+
+    header {
+      background-color: var(--azul);
+      color: var(--branco);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      background-color: var(--branco);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+      color: var(--vermelho);
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: var(--azul);
+      color: var(--branco);
+      padding: 1rem;
+      text-align: left;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .acoes button {
+      background-color: var(--vermelho);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 0.5rem;
+      }
+
+      td, th {
+        padding: 0.5rem;
+        text-align: right;
+        position: relative;
+      }
+
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        font-weight: bold;
+        color: var(--azul);
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Usuários do Sistema</h1>
+  </header>
+
+  <div class="container">
+    <h2>Lista de Usuários</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Data de Cadastro</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Nome">Mateus Maia</td>
+          <td data-label="Email">mateus@email.com</td>
+          <td data-label="Data de Cadastro">24/07/2025</td>
+          <td class="acoes">
+            <button>Editar</button>
+            <button>Excluir</button>
+          </td>
+        </tr>
+        <!-- Adicione mais usuários aqui -->
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
