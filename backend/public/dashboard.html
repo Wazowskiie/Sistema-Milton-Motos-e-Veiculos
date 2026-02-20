@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Milton Motos e Peças — Dashboard</title>
+  <meta name="description" content="Sistema de peças — Milton Motos e Peças" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+
+
+
+/* ===== MENU LATERAL ===== */
+  .side-menu{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0b1220, #020617);
+    border-right: 1px solid rgba(255,255,255,.06);
+    z-index: 100;
+    padding-top: 16px;
+  }
+
+  .menu-header{
+    padding: 0 20px 16px;
+    font-weight: 600;
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .side-menu nav{
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 6px;
+  }
+
+  .side-menu nav a{
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #cbd5e1;
+    transition: .2s;
+  }
+
+  .side-menu nav a:hover{
+    background: rgba(13,71,161,.25);
+    color: #fff;
+  }
+
+  /* ===== AJUSTE DO APP ===== */
+  .app{
+    margin-left: 240px;
+  }
+
+  @media (max-width: 900px){
+    .side-menu{display:none}
+    .app{margin-left:0}
+  }
+
+
+    :root{
+      /* Cores da marca */
+      --brand-red: #C62828;
+      --brand-blue: #0D47A1;
+      --brand-white: #ffffff;
+      --bg: #0f172a;          /* slate-900 */
+      --panel: #111827;       /* gray-900 */
+      --panel-2: #0b1220;     /* fundo cards */
+      --muted: #94a3b8;       /* slate-400 */
+      --text: #e5e7eb;        /* gray-200 */
+      --ok: #16a34a;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --ring: 0 0 0 3px rgba(13,71,161,.3);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.35);
+      --shadow-md: 0 6px 18px rgba(0,0,0,.25);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xl: 24px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(13,71,161,.25), transparent 40%),
+                  radial-gradient(1000px 500px at -10% 20%, rgba(198,40,40,.25), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      line-height:1.45;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+
+    .app{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      min-height:100dvh;
+    }
+
+    /* Header */
+    .header{
+      position:sticky; top:0; z-index:50;
+      background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(17,24,39,.75));
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .header-inner{
+      max-width:1200px; margin:0 auto;
+      display:flex; align-items:center; gap:16px;
+      padding:14px 20px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      font-weight:700; letter-spacing:.3px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:12px; overflow:hidden;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, var(--brand-red), var(--brand-blue));
+      box-shadow: var(--shadow-md);
+    }
+    .brand-title{font-size: clamp(16px, 2vw, 20px)}
+
+    /* Nav */
+    .nav{margin-left:auto; display:flex; align-items:center; gap:8px}
+    .nav a{
+      padding:10px 14px; border-radius:10px; color: var(--muted);
+    }
+    .nav a.active, .nav a:hover{color:var(--brand-white); background: rgba(255,255,255,.06)}
+
+    .btn{cursor:pointer; border:0; border-radius:12px; padding:10px 14px; display:inline-flex; align-items:center; gap:8px}
+    .btn-primary{background: linear-gradient(135deg, var(--brand-blue), #0b3c86); color:#fff; box-shadow: var(--shadow-md)}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .btn-ghost{background: transparent; color: var(--text)}
+
+    /* Layout */
+    .container{max-width:1200px; margin:0 auto; padding:24px 20px}
+
+    /* Hero */
+    .hero{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:20px; align-items:stretch;
+    }
+    @media (max-width:920px){.hero{grid-template-columns:1fr}}
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--radius);
+      padding:18px;
+    }
+    .hero-left{display:grid; gap:18px}
+    .welcome{
+      background: radial-gradient(800px 300px at 20% -30%, rgba(13,71,161,.25), transparent 40%),
+                  radial-gradient(600px 260px at 100% 120%, rgba(198,40,40,.22), transparent 55%),
+                  linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    }
+    .welcome h1{
+      margin:8px 0 6px; font-size: clamp(20px, 3.4vw, 32px);
+    }
+    .welcome p{color: var(--muted); margin:0}
+
+    /* KPIs */
+    .kpis{display:grid; grid-template-columns: repeat(4,1fr); gap:14px}
+    @media (max-width:920px){.kpis{grid-template-columns: repeat(2,1fr)}}
+    @media (max-width:520px){.kpis{grid-template-columns: 1fr}}
+    .kpi{
+      padding:16px; border-radius:14px; background: var(--panel-2); border:1px solid rgba(255,255,255,.06);
+    }
+    .kpi .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+    .kpi .value{font-size: clamp(20px, 3vw, 26px); font-weight:700; margin-top:6px}
+    .kpi .trend{font-size:12px; margin-top:8px}
+    .trend.up{color:var(--ok)}
+    .trend.down{color:var(--danger)}
+
+    /* Peças recentes */
+    .grid{display:grid; grid-template-columns: 1fr; gap:16px}
+    .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
+    .search{
+      display:flex; align-items:center; gap:10px; flex:1; min-width:220px;
+      background: var(--panel-2); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px;
+    }
+    .search input{flex:1; background:transparent; border:0; outline:0; color:var(--text)}
+    .table-wrap{overflow:auto; border-radius:14px; border:1px solid rgba(255,255,255,.06)}
+    table{width:100%; border-collapse:collapse; min-width:760px; background: rgba(255,255,255,.02)}
+    thead th{position:sticky; top:0; background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); text-align:left; padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+    tbody td{padding:14px 12px; border-top:1px solid rgba(255,255,255,.06)}
+    tbody tr:hover{background: rgba(255,255,255,.03)}
+    .badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.12)}
+    .badge.blue{background:rgba(13,71,161,.12)}
+    .badge.red{background:rgba(198,40,40,.12)}
+
+    /* Footer */
+    .footer{color:var(--muted); text-align:center; padding:26px 16px}
+
+    /* Acessibilidade focos */
+    :is(a,button,input){outline:none}
+    :is(a,button,input):focus-visible{box-shadow: var(--ring)}
+
+.acoes-rapidas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.acao-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.acao-btn.primary {
+  background: linear-gradient(135deg, var(--brand-blue), #0b3c86);
+  color: #fff;
+}
+
+.acao-btn.primary:hover {
+  filter: brightness(1.08);
+}
+
+.acao-btn.light {
+  background: #f1f5f9;
+  color: var(--brand-blue);
+}
+
+.acao-btn.light:hover {
+  background: #e2e8f0;
+}
+
+  </style>
+</head>
+<body>
+
+<div id="sideMenu" class="side-menu">
+  <div class="menu-header">
+    <span>☰ Menu</span>
+  </div>
+
+  <nav>
+  
+    <a href="clientes.html">👥 Clientes</a>
+    <a href="mecanicos.html">🧰 Mecânicos</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="ordens-servico.html">🧾 Ordens de Serviço</a>
+    <a href="financeiro.html">💰 Financeiro</a>
+  </nav>
+</div>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <!-- ícone simples em SVG -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M5 17h14l-1 3H6l-1-3Zm13.5-4c.83 0 1.5.67 1.5 1.5S19.33 16 18.5 16 17 15.33 17 14.5s.67-1.5 1.5-1.5ZM5.5 13c.83 0 1.5.67 1.5 1.5S6.33 16 5.5 16 4 15.33 4 14.5 4.67 13 5.5 13ZM3 6h9l3 3h6v5H3V6Z"/></svg>
+        </div>
+        <span class="brand-title">Milton Motos e Peças</span>
+      </div>
+
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="#" class="active">Dashboard</a>
+        <a href="produtos.html">Peças</a>
+        <a href="vendas.html">Vendas</a>
+        <a href="estoque.html">estoque</a>
+        <a href="/cadastro-barcode.html">Cadastrar</a>
+        <button class="btn btn-ghost" title="Sair" aria-label="Sair">
+          <!-- ícone logout -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9Z"/><path d="M20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/></svg>
+          <button id="btnLogout">Sair</button>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+    <section class="hero">
+      <div class="hero-left">
+        <article class="card welcome">
+          <h1>Bem-vinda, <span id="nomeUsuario"> </span> 👋</h1>
+          <p>Este é o seu painel do <strong>Milton Motos e Peças</strong>. Acompanhe estoque, vendas do mês e movimente suas peças com rapidez.</p>
+        </article>
+
+        <!-- KPIs -->
+        <div class="kpis" role="region" aria-label="Indicadores do sistema">
+          <div class="kpi" title="Quantidade total de peças em estoque">
+            <div class="label">Peças em estoque</div>
+            <h2 id="pecasEstoque">0</h2>
+            <div class="trend up">0% nesta semana</div>
+          </div>
+          <div class="kpi" title="Tempo médio que a peça permanece em estoque">
+            <div class="label">Média de dias no estoque</div>
+            <h2 id="mediaDias">0 dias</h2>
+            <div class="trend down">-0% vs. mês passado</div>
+          </div>
+          <div class="kpi" title="Vendas realizadas no mês atual">
+            <div class="label">Vendas do mês</div>
+            <h2 id="vendasMes">R$ 0</h2>
+            <div class="trend up">0 vendas hoje</div>
+          </div>
+          <div class="kpi" title="Avaliações de clientes pendentes">
+            <div class="label">Avaliações pendentes</div>
+            <h2 id="avaliacoesPendentes">0</h2>
+            <div class="trend">Revise até o fim do dia</div>
+          </div>
+        </div>
+      </div>
+      <!-- callout lateral -->
+      <aside class="card" aria-label="Atalhos rápidos">
+        <h2 style="margin:6px 0 14px; font-size:18px">Ações rápidas</h2>
+        <div class="acoes-rapidas">
+  <button class="acao-btn primary" id="btnAddPeca">
+    ➕ Adicionar peça
+  </button>
+
+  <button class="acao-btn light" id="btnEntrada">
+    ⬆️ Registrar entrada
+  </button>
+
+  <button class="acao-btn primary" id="btnSaida">
+    ⬇️ Registrar saída
+  </button>
+</div>
+      
+      </aside>
+    </section>
+
+    <!-- Peças recentes -->
+    <section class="grid" style="margin-top:20px">
+      <div class="toolbar">
+        <div class="search" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 0 0 1.57-4.23 6.5 6.5 0 1 0-6.5 6.5 6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/></svg>
+          <input id="busca" type="search" placeholder="Buscar peça por nome, tipo ou código..." aria-label="Buscar peça">
+        </div>
+        <div style="display:flex; gap:8px">
+          <button class="btn btn-primary" id="exportar">Exportar CSV</button>
+          <button class="btn btn-ghost" id="atualizar">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" role="region" aria-label="Peças recentes">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Preço</th>
+              <th>Estoque</th>
+              <th>Status</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-pecas">
+            <tbody id="produtosTableBody">
+            <tr>
+            <td colspan="8" class="loading">🔄 Carregando produtos...</td>
+            </tr>
+            </tbody>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">© <span id="ano"></span> Milton Motos e Peças — Todos os direitos reservados.</footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* ================= API ================= */
+  const headers = {
+    Authorization: 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  };
+
+/* ================= ESTOQUE ================= */
+  async function carregarPecas() {
+    const res = await fetch('/api/produtos', { headers });
+    const produtos = await res.json();
+
+    const tbody = document.getElementById('produtosTableBody');
+    tbody.innerHTML = '';
+
+    let totalEstoque = 0;
+
+    produtos.forEach(p => {
+      const estoque = Number(p.estoque || 0);
+      totalEstoque += estoque;
+
+      let status = 'Esgotado';
+      if (estoque > 20) status = 'Disponível';
+      else if (estoque > 0) status = 'Baixo';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.codigo || '-'}</td>
+        <td>${p.nome}</td>
+        <td>${p.tipo || '-'}</td>
+        <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
+        <td>${estoque}</td>
+        <td>${status}</td>
+        <td style="text-align:right">
+          <button onclick="editarProduto('${p._id}')" style="font-size:14px">✏️</button>
+          <button onclick="excluirProduto('${p._id}')" style="font-size:14px">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('pecasEstoque').textContent = totalEstoque;
+  }
+
+  /* ================= VENDAS ================= */
+  async function carregarVendasMes() {
+    const res = await fetch('/api/vendas', { headers });
+    const vendas = await res.json();
+
+    const agora = new Date();
+    let total = 0;
+
+    vendas.forEach(v => {
+      const data = new Date(v.createdAt);
+      if (
+        data.getMonth() === agora.getMonth() &&
+        data.getFullYear() === agora.getFullYear()
+      ) {
+        total += Number(v.total || v.valor || 0);
+      }
+    });
+
+    document.getElementById('vendasMes').textContent =
+      total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  /* ================= MÉDIA DIAS ================= */
+  async function carregarMediaDiasEstoque() {
+    const res = await fetch('/api/produtos', { headers });
+    const produtos = await res.json();
+
+    let soma = 0;
+    let qtd = 0;
+    const hoje = new Date();
+
+    produtos.forEach(p => {
+      if (p.createdAt || p.criadoEm) {
+        const data = new Date(p.createdAt || p.criadoEm);
+        soma += Math.floor((hoje - data) / 86400000);
+        qtd++;
+      }
+    });
+
+    document.getElementById('mediaDias').textContent =
+      (qtd ? Math.round(soma / qtd) : 0) + ' dias';
+  }
+
+   /* ================= AVALIAÇÕES ================= */
+  async function carregarAvaliacoesPendentes() {
+    const res = await fetch('/api/avaliacoes/pendentes', { headers });
+    const dados = await res.json();
+    document.getElementById('avaliacoesPendentes').textContent = dados.total || 0;
+  }
+
+  /* ========= AÇÕES RÁPIDAS ========= */
+  document.getElementById('btnAddPeca')?.addEventListener('click', adicionarPeca);
+  document.getElementById('btnEntrada')?.addEventListener('click', registrarEntrada);
+  document.getElementById('btnSaida')?.addEventListener('click', registrarSaida);
+  document.getElementById('atualizar')?.addEventListener('click', carregarPecas);
+
+ 
+
+    // 🔢 ATUALIZA CARD "PEÇAS EM ESTOQUE"
+    document.getElementById('pecasEstoque').innerText = produtos.length;
+
+ 
+  
+
+
+  /* ========= EDITAR / EXCLUIR ========= */
+  function ativarAcoesTabela() {
+    document.querySelectorAll('.btn-editar').forEach(btn => {
+      btn.onclick = () => editarPeca(btn.dataset.id);
+    });
+
+    document.querySelectorAll('.btn-excluir').forEach(btn => {
+      btn.onclick = () => excluirPeca(btn.dataset.id);
+    });
+  }
+
+  async function editarPeca(id) {
+    const nome = prompt('Novo nome da peça:');
+    const preco = prompt('Novo preço:');
+
+    if (!nome || !preco) return;
+
+    await fetch(`/api/produtos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify({ nome, preco })
+    });
+
+    carregarPecas();
+  }
+
+  async function excluirPeca(id) {
+    if (!confirm('Deseja excluir esta peça?')) return;
+
+    await fetch(`/api/produtos/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + token }
+    });
+
+    carregarPecas();
+  }
+
+  function adicionarPeca() {
+  window.location.href = "cadastro-peca.html";
+}
+
+function registrarEntrada() {
+  window.location.href = "estoque.html";
+}
+
+function registrarSaida() {
+  window.location.href = "estoque.html";
+}
+
+  /* ========= LOGOUT ========= */
+  document.getElementById('btnLogout')?.addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'login-cadastro.html';
+  });
+
+});
+
+
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+if (!usuario) {
+  window.location.href = 'login-cadastro.html';
+}
+
+document.getElementById('nomeUsuario').textContent = usuario.nome;
+
+async function carregarResumoEstoque() {
+  const res = await fetch('/api/produtos');
+  const produtos = await res.json();
+
+  let totalEstoque = 0;
+  produtos.forEach(p => {
+    totalEstoque += Number(p.estoque || 0);
+  });
+
+  document.getElementById('pecasEstoque').textContent = totalEstoque;
+}
+
+async function carregarVendasMes() {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await fetch('/api/vendas', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    });
+
+    if (!res.ok) {
+      console.error('Erro ao buscar vendas:', res.status);
+      return;
+    }
+
+    const vendas = await res.json();
+
+    if (!Array.isArray(vendas)) {
+      console.error('Resposta inválida de vendas:', vendas);
+      return;
+    }
+
+    const agora = new Date();
+    let totalMes = 0;
+
+    vendas.forEach(v => {
+      const dataVenda = new Date(v.createdAt);
+      if (
+        dataVenda.getMonth() === agora.getMonth() &&
+        dataVenda.getFullYear() === agora.getFullYear()
+      ) {
+        totalMes += Number(v.total || v.valor || 0);
+      }
+    });
+
+    document.getElementById('vendasMes').textContent =
+      totalMes.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+
+  } catch (error) {
+    console.error('Erro ao carregar vendas do mês:', error);
+  }
+}
+
+async function carregarMediaDiasEstoque() {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await fetch('/api/produtos', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    });
+
+    if (!res.ok) {
+      console.error('Erro ao buscar produtos:', res.status);
+      return;
+    }
+
+    const produtos = await res.json();
+
+    if (!Array.isArray(produtos)) {
+      console.error('Resposta inválida de produtos:', produtos);
+      return;
+    }
+
+    const hoje = new Date();
+    let somaDias = 0;
+    let qtd = 0;
+
+    produtos.forEach(p => {
+      if (p.criadoEm || p.createdAt) {
+        const criado = new Date(p.criadoEm || p.createdAt);
+        const dias = Math.floor(
+          (hoje - criado) / (1000 * 60 * 60 * 24)
+        );
+        somaDias += dias;
+        qtd++;
+      }
+    });
+
+    const media = qtd ? Math.round(somaDias / qtd) : 0;
+    document.getElementById('mediaDias').textContent = `${media} dias`;
+
+  } catch (error) {
+    console.error('Erro ao calcular média de dias no estoque:', error);
+  }
+}
+
+
+ 
+/* ================= AÇÕES ================= */
+  window.editarProduto = async (id) => {
+    const nome = prompt('Novo nome:');
+    const preco = prompt('Novo preço:');
+
+    if (!nome || !preco) return;
+
+    await fetch('/api/produtos/' + id, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ nome, preco })
+    });
+
+    carregarPecas();
+  };
+
+  window.excluirProduto = async (id) => {
+    if (!confirm('Excluir peça?')) return;
+
+    await fetch('/api/produtos/' + id, {
+      method: 'DELETE',
+      headers
+    });
+
+    carregarPecas();
+  };
+
+  document.getElementById('btnLogout')?.addEventListener('click', () => {
+    localStorage.clear();
+    location.href = 'login-cadastro.html';
+  });
+
+/* ================= INIT ================= */
+carregarPecas();
+carregar();
+carregarSelects();
+carregarResumoEstoque();
+carregarVendasMes();
+carregarMediaDiasEstoque();
+</script>
+</body>
+</html>

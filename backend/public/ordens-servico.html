@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ordens de Serviço</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;font-family:Inter;background:#0f172a;color:#fff}
+    .container{max-width:1000px;margin:40px auto;padding:20px}
+    h1{margin-bottom:20px}
+    select,input,button{
+      padding:10px;border-radius:8px;border:none;font-size:14px
+    }
+    select,input{width:100%;margin-bottom:10px}
+    button{cursor:pointer;background:#2563eb;color:#fff}
+    table{width:100%;margin-top:20px;border-collapse:collapse}
+    th,td{padding:12px;border-bottom:1px solid #334155}
+    td:last-child{text-align:right}
+    .ghost{background:none;color:#93c5fd}
+    .danger{color:#f87171}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🧾 Ordens de Serviço</h1>
+
+  <form id="formOrdem">
+    <select id="cliente" required></select>
+    <select id="mecanico" required></select>
+    <input id="descricao" placeholder="Descrição do serviço" required>
+    <input id="valor" type="number" placeholder="Valor">
+    <button>Criar ordem</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Mecânico</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+
+  <a href="/dashboard.html">← Voltar</a>
+</div>
+
+<script src="js/ordens.js"></script>
+</body>
+</html>

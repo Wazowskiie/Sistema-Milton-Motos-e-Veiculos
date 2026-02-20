@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mecânicos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;font-family:Inter;background:#0f172a;color:#fff}
+    .container{max-width:900px;margin:40px auto;padding:20px}
+    h1{margin-bottom:20px}
+    input,button{
+      padding:10px;border-radius:8px;border:none;font-size:14px
+    }
+    input{width:100%;margin-bottom:10px}
+    button{cursor:pointer;background:#2563eb;color:#fff}
+    table{width:100%;margin-top:20px;border-collapse:collapse}
+    th,td{padding:12px;border-bottom:1px solid #334155}
+    td:last-child{text-align:right}
+    .ghost{background:none;color:#93c5fd}
+    .danger{color:#f87171}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🧰 Mecânicos</h1>
+
+  <form id="formMecanico">
+    <input id="nome" placeholder="Nome do mecânico" required>
+    <input id="telefone" placeholder="Telefone">
+    <input id="especialidade" placeholder="Especialidade">
+    <button>Salvar mecânico</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Especialidade</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+
+  <a href="/dashboard.html">← Voltar</a>
+</div>
+
+<script src="js/mecanicos.js"></script>
+</body>
+</html>

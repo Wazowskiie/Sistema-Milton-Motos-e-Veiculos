@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Peças — Milton Motos e Peças</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand-red:#C62828;
+      --brand-blue:#0D47A1;
+      --bg:#0d1220;
+      --panel:#0f1628;
+      --panel-2:#0b1220;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --danger:#ef4444;
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;cursor:pointer}
+
+    .header{
+      position:sticky;top:0;
+      background:#0f1628;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .header-inner{
+      max-width:1200px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:14px 20px;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      font-weight:800;
+    }
+
+    .logo{
+      width:42px;height:42px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--brand-red),var(--brand-blue));
+      display:grid;
+      place-items:center;
+      color:#fff;
+    }
+
+    .nav{
+      margin-left:auto;
+      display:flex;
+      gap:10px;
+    }
+
+    .nav a{
+      padding:10px 14px;
+      border-radius:10px;
+      color:#cbd5e1;
+    }
+
+    .nav a.active,
+    .nav a:hover{
+      background:rgba(255,255,255,.06);
+      color:#fff;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+      padding:24px 20px;
+    }
+
+    .card{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px;
+      border:1px solid rgba(255,255,255,.06);
+      margin-bottom:16px;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .search{
+      flex:1;
+      display:flex;
+      background:#0b1324;
+      border-radius:12px;
+      padding:10px;
+      gap:8px;
+    }
+
+    .search input{
+      flex:1;
+      background:none;
+      border:none;
+      color:#fff;
+      outline:none;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--brand-blue),#0a3a86);
+      color:#fff;
+    }
+
+    .btn-danger{
+      background:linear-gradient(135deg,#ef4444,#b91c1c);
+      color:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+    }
+
+    thead th{
+      text-align:left;
+      padding:12px;
+      font-size:12px;
+      color:var(--muted);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    tbody td{
+      padding:14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    tbody tr:hover{
+      background:rgba(255,255,255,.03);
+    }
+
+    .badge{
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background:rgba(255,255,255,.08);
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      padding:26px;
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+  // 🔐 Proteção de rota
+  const token = localStorage.getItem('token');
+  if(!token){
+    location.href = 'login-cadastro.html';
+  }
+</script>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="logo">MM</div>
+      <span>Milton Motos e Peças</span>
+    </div>
+
+    <nav class="nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a class="active">Peças</a>
+      <a href="estoque.html">Estoque</a>
+      <a href="vendas.html">Vendas</a>
+      <a href="#" id="btnLogout">Sair</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="card">
+    <h1>Peças</h1>
+    <p style="color:var(--muted)">Gerencie o catálogo de peças.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search">
+      🔍
+      <input id="busca" placeholder="Buscar peça...">
+    </div>
+    <button class="btn btn-primary" id="btnAtualizar">Atualizar</button>
+  </div>
+
+  <div class="card" style="overflow:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Tipo</th>
+          <th>Preço</th>
+          <th>Estoque</th>
+          <th>Status</th>
+          <th style="text-align:right">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-pecas"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer class="footer">
+  © <span id="ano"></span> Milton Motos e Peças
+</footer>
+
+<script>
+  document.getElementById('ano').textContent = new Date().getFullYear();
+
+  const tbody = document.getElementById('tbody-pecas');
+  const busca = document.getElementById('busca');
+
+  // 🚨 API SEM localhost (IMPORTANTE)
+  async function carregarPecas(){
+    try{
+      const res = await fetch('/api/produtos', {
+        headers:{
+          Authorization:'Bearer ' + localStorage.getItem('token')
+        }
+      });
+
+      if(!res.ok) throw new Error('Erro API');
+
+      const produtos = await res.json();
+      tbody.innerHTML = '';
+
+      produtos.forEach(p=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.codigo || '-'}</td>
+          <td>${p.nome}</td>
+          <td>${p.tipo || '-'}</td>
+          <td>R$ ${Number(p.preco||0).toFixed(2)}</td>
+          <td>${p.estoque || 0}</td>
+          <td>
+            <span class="badge">
+              ${p.estoque > 0 ? 'Disponível' : 'Esgotado'}
+            </span>
+          </td>
+          <td style="text-align:right">
+            <button class="btn btn-danger" onclick="excluir('${p._id}')">🗑</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+    }catch(e){
+      console.error(e);
+      alert('Erro ao carregar peças');
+    }
+  }
+
+  async function excluir(id){
+    if(!confirm('Excluir peça?')) return;
+
+    await fetch('/api/produtos/' + id, {
+      method:'DELETE',
+      headers:{
+        Authorization:'Bearer ' + localStorage.getItem('token')
+      }
+    });
+
+    carregarPecas();
+  }
+
+  busca.addEventListener('input', ()=>{
+    const termo = busca.value.toLowerCase();
+    [...tbody.children].forEach(tr=>{
+      tr.style.display = tr.innerText.toLowerCase().includes(termo) ? '' : 'none';
+    });
+  });
+
+  document.getElementById('btnAtualizar').onclick = carregarPecas;
+  document.getElementById('btnLogout').onclick = ()=>{
+    localStorage.clear();
+    location.href='login-cadastro.html';
+  };
+
+  carregarPecas();
+</script>
+
+</body>
+</html>

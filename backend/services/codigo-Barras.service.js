@@ -13,3 +13,5 @@ function gerarCodigoEAN13() {
   const digito = (10 - (soma % 10)) % 10;
   return codigo + digito;
 }
+
+module.exports = { gerarCodigoEAN13 };
