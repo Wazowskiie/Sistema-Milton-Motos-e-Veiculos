@@ -381,328 +381,119 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  /* ================= API ================= */
-  const headers = {
-    Authorization: 'Bearer ' + token,
-    'Content-Type': 'application/json'
-  };
-
-/* ================= ESTOQUE ================= */
-  async function carregarPecas() {
-    const res = await fetch('/api/produtos', { headers });
-    const produtos = await res.json();
-
-    const tbody = document.getElementById('produtosTableBody');
-    tbody.innerHTML = '';
-
-    let totalEstoque = 0;
-
-    produtos.forEach(p => {
-      const estoque = Number(p.estoque || 0);
-      totalEstoque += estoque;
-
-      let status = 'Esgotado';
-      if (estoque > 20) status = 'Disponível';
-      else if (estoque > 0) status = 'Baixo';
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.codigo || '-'}</td>
-        <td>${p.nome}</td>
-        <td>${p.tipo || '-'}</td>
-        <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
-        <td>${estoque}</td>
-        <td>${status}</td>
-        <td style="text-align:right">
-          <button onclick="editarProduto('${p._id}')" style="font-size:14px">✏️</button>
-          <button onclick="excluirProduto('${p._id}')" style="font-size:14px">🗑️</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('pecasEstoque').textContent = totalEstoque;
-  }
-
-  /* ================= VENDAS ================= */
-  async function carregarVendasMes() {
-    const res = await fetch('/api/vendas', { headers });
-    const vendas = await res.json();
-
-    const agora = new Date();
-    let total = 0;
-
-    vendas.forEach(v => {
-      const data = new Date(v.createdAt);
-      if (
-        data.getMonth() === agora.getMonth() &&
-        data.getFullYear() === agora.getFullYear()
-      ) {
-        total += Number(v.total || v.valor || 0);
-      }
-    });
-
-    document.getElementById('vendasMes').textContent =
-      total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
-
-  /* ================= MÉDIA DIAS ================= */
-  async function carregarMediaDiasEstoque() {
-    const res = await fetch('/api/produtos', { headers });
-    const produtos = await res.json();
-
-    let soma = 0;
-    let qtd = 0;
-    const hoje = new Date();
-
-    produtos.forEach(p => {
-      if (p.createdAt || p.criadoEm) {
-        const data = new Date(p.createdAt || p.criadoEm);
-        soma += Math.floor((hoje - data) / 86400000);
-        qtd++;
-      }
-    });
-
-    document.getElementById('mediaDias').textContent =
-      (qtd ? Math.round(soma / qtd) : 0) + ' dias';
-  }
-
-   /* ================= AVALIAÇÕES ================= */
-  async function carregarAvaliacoesPendentes() {
-    const res = await fetch('/api/avaliacoes/pendentes', { headers });
-    const dados = await res.json();
-    document.getElementById('avaliacoesPendentes').textContent = dados.total || 0;
-  }
-
-  /* ========= AÇÕES RÁPIDAS ========= */
-  document.getElementById('btnAddPeca')?.addEventListener('click', adicionarPeca);
-  document.getElementById('btnEntrada')?.addEventListener('click', registrarEntrada);
-  document.getElementById('btnSaida')?.addEventListener('click', registrarSaida);
-  document.getElementById('atualizar')?.addEventListener('click', carregarPecas);
-
- 
-
-    // 🔢 ATUALIZA CARD "PEÇAS EM ESTOQUE"
-    document.getElementById('pecasEstoque').innerText = produtos.length;
-
- 
-  
-
-
-  /* ========= EDITAR / EXCLUIR ========= */
-  function ativarAcoesTabela() {
-    document.querySelectorAll('.btn-editar').forEach(btn => {
-      btn.onclick = () => editarPeca(btn.dataset.id);
-    });
-
-    document.querySelectorAll('.btn-excluir').forEach(btn => {
-      btn.onclick = () => excluirPeca(btn.dataset.id);
-    });
-  }
-
-  async function editarPeca(id) {
-    const nome = prompt('Novo nome da peça:');
-    const preco = prompt('Novo preço:');
-
-    if (!nome || !preco) return;
-
-    await fetch(`/api/produtos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token
-      },
-      body: JSON.stringify({ nome, preco })
-    });
-
-    carregarPecas();
-  }
-
-  async function excluirPeca(id) {
-    if (!confirm('Deseja excluir esta peça?')) return;
-
-    await fetch(`/api/produtos/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: 'Bearer ' + token }
-    });
-
-    carregarPecas();
-  }
-
-  function adicionarPeca() {
-  window.location.href = "cadastro-peca.html";
-}
-
-function registrarEntrada() {
-  window.location.href = "estoque.html";
-}
-
-function registrarSaida() {
-  window.location.href = "estoque.html";
-}
-
-  /* ========= LOGOUT ========= */
-  document.getElementById('btnLogout')?.addEventListener('click', () => {
-    localStorage.clear();
-    window.location.href = 'login-cadastro.html';
-  });
-
-});
-
-
+const token = localStorage.getItem('token');
 const usuario = JSON.parse(localStorage.getItem('usuario'));
 
-if (!usuario) {
+if (!token || !usuario) {
   window.location.href = 'login-cadastro.html';
 }
 
-document.getElementById('nomeUsuario').textContent = usuario.nome;
+const headers = {
+  Authorization: 'Bearer ' + token,
+  'Content-Type': 'application/json'
+};
 
-async function carregarResumoEstoque() {
-  const res = await fetch('/api/produtos');
+document.getElementById('nomeUsuario').textContent = usuario?.nome || '';
+document.getElementById('ano').textContent = new Date().getFullYear();
+
+async function carregarPecas() {
+  const res = await fetch('/api/produtos', { headers });
   const produtos = await res.json();
-
+  const tbody = document.getElementById('produtosTableBody');
+  tbody.innerHTML = '';
   let totalEstoque = 0;
   produtos.forEach(p => {
-    totalEstoque += Number(p.estoque || 0);
+    const estoque = Number(p.estoque || 0);
+    totalEstoque += estoque;
+    let status = 'Esgotado';
+    if (estoque > 20) status = 'Disponível';
+    else if (estoque > 0) status = 'Baixo';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.codigo || '-'}</td>
+      <td>${p.nome}</td>
+      <td>${p.tipo || '-'}</td>
+      <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
+      <td>${estoque}</td>
+      <td>${status}</td>
+      <td style="text-align:right">
+        <button onclick="editarProduto('${p._id}')" style="font-size:14px">✏️</button>
+        <button onclick="excluirProduto('${p._id}')" style="font-size:14px">🗑️</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
   });
-
   document.getElementById('pecasEstoque').textContent = totalEstoque;
 }
 
 async function carregarVendasMes() {
   try {
-    const token = localStorage.getItem('token');
-
-    const res = await fetch('/api/vendas', {
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    });
-
-    if (!res.ok) {
-      console.error('Erro ao buscar vendas:', res.status);
-      return;
-    }
-
+    const res = await fetch('/api/vendas', { headers });
+    if (!res.ok) return;
     const vendas = await res.json();
-
-    if (!Array.isArray(vendas)) {
-      console.error('Resposta inválida de vendas:', vendas);
-      return;
-    }
-
+    if (!Array.isArray(vendas)) return;
     const agora = new Date();
-    let totalMes = 0;
-
+    let total = 0;
     vendas.forEach(v => {
-      const dataVenda = new Date(v.createdAt);
-      if (
-        dataVenda.getMonth() === agora.getMonth() &&
-        dataVenda.getFullYear() === agora.getFullYear()
-      ) {
-        totalMes += Number(v.total || v.valor || 0);
+      const data = new Date(v.createdAt);
+      if (data.getMonth() === agora.getMonth() && data.getFullYear() === agora.getFullYear()) {
+        total += Number(v.total || v.valor || 0);
       }
     });
-
-    document.getElementById('vendasMes').textContent =
-      totalMes.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
-
-  } catch (error) {
-    console.error('Erro ao carregar vendas do mês:', error);
-  }
+    document.getElementById('vendasMes').textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  } catch (e) { console.error(e); }
 }
 
 async function carregarMediaDiasEstoque() {
   try {
-    const token = localStorage.getItem('token');
-
-    const res = await fetch('/api/produtos', {
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    });
-
-    if (!res.ok) {
-      console.error('Erro ao buscar produtos:', res.status);
-      return;
-    }
-
+    const res = await fetch('/api/produtos', { headers });
+    if (!res.ok) return;
     const produtos = await res.json();
-
-    if (!Array.isArray(produtos)) {
-      console.error('Resposta inválida de produtos:', produtos);
-      return;
-    }
-
     const hoje = new Date();
-    let somaDias = 0;
-    let qtd = 0;
-
+    let soma = 0, qtd = 0;
     produtos.forEach(p => {
-      if (p.criadoEm || p.createdAt) {
-        const criado = new Date(p.criadoEm || p.createdAt);
-        const dias = Math.floor(
-          (hoje - criado) / (1000 * 60 * 60 * 24)
-        );
-        somaDias += dias;
+      if (p.createdAt || p.criadoEm) {
+        soma += Math.floor((hoje - new Date(p.createdAt || p.criadoEm)) / 86400000);
         qtd++;
       }
     });
-
-    const media = qtd ? Math.round(somaDias / qtd) : 0;
-    document.getElementById('mediaDias').textContent = `${media} dias`;
-
-  } catch (error) {
-    console.error('Erro ao calcular média de dias no estoque:', error);
-  }
+    document.getElementById('mediaDias').textContent = (qtd ? Math.round(soma / qtd) : 0) + ' dias';
+  } catch (e) { console.error(e); }
 }
 
+async function carregarAvaliacoesPendentes() {
+  try {
+    const res = await fetch('/api/avaliacoes/pendentes', { headers });
+    if (!res.ok) return;
+    const dados = await res.json();
+    document.getElementById('avaliacoesPendentes').textContent = dados.total || 0;
+  } catch (e) { console.error(e); }
+}
 
- 
-/* ================= AÇÕES ================= */
-  window.editarProduto = async (id) => {
-    const nome = prompt('Novo nome:');
-    const preco = prompt('Novo preço:');
+window.editarProduto = async (id) => {
+  const nome = prompt('Novo nome:');
+  const preco = prompt('Novo preço:');
+  if (!nome || !preco) return;
+  await fetch('/api/produtos/' + id, { method: 'PUT', headers, body: JSON.stringify({ nome, preco }) });
+  carregarPecas();
+};
 
-    if (!nome || !preco) return;
+window.excluirProduto = async (id) => {
+  if (!confirm('Excluir peça?')) return;
+  await fetch('/api/produtos/' + id, { method: 'DELETE', headers });
+  carregarPecas();
+};
 
-    await fetch('/api/produtos/' + id, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ nome, preco })
-    });
+document.getElementById('btnAddPeca')?.addEventListener('click', () => window.location.href = 'cadastro-peca.html');
+document.getElementById('btnEntrada')?.addEventListener('click', () => window.location.href = 'estoque.html');
+document.getElementById('btnSaida')?.addEventListener('click', () => window.location.href = 'estoque.html');
+document.getElementById('atualizar')?.addEventListener('click', carregarPecas);
+document.getElementById('btnLogout')?.addEventListener('click', () => { localStorage.clear(); location.href = 'login-cadastro.html'; });
 
-    carregarPecas();
-  };
-
-  window.excluirProduto = async (id) => {
-    if (!confirm('Excluir peça?')) return;
-
-    await fetch('/api/produtos/' + id, {
-      method: 'DELETE',
-      headers
-    });
-
-    carregarPecas();
-  };
-
-  document.getElementById('btnLogout')?.addEventListener('click', () => {
-    localStorage.clear();
-    location.href = 'login-cadastro.html';
-  });
-
-/* ================= INIT ================= */
 carregarPecas();
-carregar();
-carregarSelects();
-carregarResumoEstoque();
 carregarVendasMes();
 carregarMediaDiasEstoque();
+carregarAvaliacoesPendentes();
 </script>
 </body>
 </html>
