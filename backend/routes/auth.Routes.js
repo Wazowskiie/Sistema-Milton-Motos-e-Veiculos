@@ -60,16 +60,23 @@ router.post('/cadastro', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(senha, 10);
-    const usuario = await Usuario.create({ nome, email, senha: hash });
+const usuario = await Usuario.create({ nome, email, senha: hash });
 
-    return res.status(201).json({
-      ok: true,
-      usuario: {
-        id: usuario._id,
-        nome: usuario.nome,
-        email: usuario.email
-      }
-    });
+const token = jwt.sign(
+  { id: usuario._id },
+  process.env.JWT_SECRET || 'segredo_temporario',
+  { expiresIn: '8h' }
+);
+
+return res.status(201).json({
+  ok: true,
+  token,
+  usuario: {
+    id: usuario._id,
+    nome: usuario.nome,
+    email: usuario.email
+  }
+});
 
   } catch (err) {
     console.error('ERRO CADASTRO:', err);
