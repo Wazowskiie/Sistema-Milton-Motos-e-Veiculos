@@ -383,8 +383,8 @@
 <script>
 const token = localStorage.getItem('token');
 
-console.log(valorQueVoceVaiParsear);
-const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+const usuario = (() => { try { return JSON.parse(localStorage.getItem('usuario') || 'null'); } catch(e) { return null; } })();
 
 if (!token || !usuario) {
   window.location.href = 'login-cadastro.html';
@@ -399,33 +399,46 @@ document.getElementById('nomeUsuario').textContent = usuario?.nome || '';
 document.getElementById('ano').textContent = new Date().getFullYear();
 
 async function carregarPecas() {
-  const res = await fetch('/api/produtos', { headers });
-  const produtos = await res.json();
-  const tbody = document.getElementById('produtosTableBody');
-  tbody.innerHTML = '';
-  let totalEstoque = 0;
-  produtos.forEach(p => {
-    const estoque = Number(p.estoque || 0);
-    totalEstoque += estoque;
-    let status = 'Esgotado';
-    if (estoque > 20) status = 'Disponível';
-    else if (estoque > 0) status = 'Baixo';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.codigo || '-'}</td>
-      <td>${p.nome}</td>
-      <td>${p.tipo || '-'}</td>
-      <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
-      <td>${estoque}</td>
-      <td>${status}</td>
-      <td style="text-align:right">
-        <button onclick="editarProduto('${p._id}')" style="font-size:14px">✏️</button>
-        <button onclick="excluirProduto('${p._id}')" style="font-size:14px">🗑️</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('pecasEstoque').textContent = totalEstoque;
+  try {
+    const res = await fetch('/api/produtos', { headers });
+
+    if (!res.ok) {
+      console.error('Erro na API:', res.status);
+      return;
+    }
+
+    const produtos = await res.json();
+    const tbody = document.getElementById('produtosTableBody');
+    tbody.innerHTML = '';
+    let totalEstoque = 0;
+
+    produtos.forEach(p => {
+      const estoque = Number(p.estoque || 0);
+      totalEstoque += estoque;
+      let status = 'Esgotado';
+      if (estoque > 20) status = 'Disponível';
+      else if (estoque > 0) status = 'Baixo';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.codigo || '-'}</td>
+        <td>${p.nome}</td>
+        <td>${p.tipo || '-'}</td>
+        <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
+        <td>${estoque}</td>
+        <td>${status}</td>
+        <td style="text-align:right">
+          <button onclick="editarProduto('${p._id}')" style="font-size:14px">✏️</button>
+          <button onclick="excluirProduto('${p._id}')" style="font-size:14px">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('pecasEstoque').textContent = totalEstoque;
+
+  } catch (e) {
+    console.error('Falha ao carregar peças:', e);
+  }
 }
 
 async function carregarVendasMes() {

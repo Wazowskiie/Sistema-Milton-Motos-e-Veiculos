@@ -1,65 +1,72 @@
-// ====== helpers ======
-async function apiNoAuth(path, options = {}) {
-  const headers = options.headers || {};
-  headers['Content-Type'] = 'application/json';
-  const res = await fetch(path, { ...options, headers });
+// ── Helpers ──────────────────────────────────────────────────
+async function apiAuth(path, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + token,
+    ...(options.headers || {})
+  };
+  const res  = await fetch(path, { ...options, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Erro na requisição');
   return data;
 }
 
-// ====== preencher select de produtos ======
+// ── Preencher select de produtos ─────────────────────────────
 async function preencherSelectProdutos() {
   const sel = document.getElementById('selectProduto');
   if (!sel) return;
 
-  const produtos = await apiNoAuth('/api/produtos'); // sua rota já existente
-  sel.innerHTML = '';
-  for (const p of produtos) {
-    const opt = document.createElement('option');
-    opt.value = p._id;              // IMPORTANTÍSSIMO: value = _id
-    opt.textContent = p.nome;
-    sel.appendChild(opt);
+  try {
+    const produtos = await apiAuth('/api/produtos');
+    sel.innerHTML = '<option value="">Selecione um produto</option>';
+    for (const p of produtos) {
+      const opt = document.createElement('option');
+      opt.value       = p._id;
+      opt.textContent = p.nome;
+      sel.appendChild(opt);
+    }
+  } catch (e) {
+    toastErro('Erro ao carregar produtos: ' + e.message);
   }
 }
 
-// ====== confirmar ENTRADA ======
+// ── Confirmar ENTRADA ────────────────────────────────────────
 async function confirmarEntrada() {
-  const produtoId = document.getElementById('selectProduto')?.value;
+  const produtoId  = document.getElementById('selectProduto')?.value;
   const quantidade = Number(document.getElementById('inputQtd')?.value || 0);
   const observacao = (document.getElementById('inputObs')?.value || '').trim();
 
-  if (!produtoId || !quantidade || quantidade <= 0) {
+  if (!produtoId || quantidade <= 0) {
     toastErro('Informe produto e quantidade > 0');
     return;
   }
 
   try {
-    await apiNoAuth('/api/estoque/entradas', {
+    await apiAuth('/api/estoque/entradas', {
       method: 'POST',
       body: JSON.stringify({ produtoId, quantidade, observacao })
     });
     toastOk('Entrada registrada!');
     await carregarMovimentos();
-    // se você tiver função para fechar o modal/limpar campos, chame aqui
   } catch (e) {
     toastErro(e.message);
   }
 }
 
-// ====== confirmar SAÍDA (se tiver botão de saída) ======
+// ── Confirmar SAÍDA ──────────────────────────────────────────
 async function confirmarSaida() {
-  const produtoId = document.getElementById('selectProduto')?.value;
+  const produtoId  = document.getElementById('selectProduto')?.value;
   const quantidade = Number(document.getElementById('inputQtd')?.value || 0);
   const observacao = (document.getElementById('inputObs')?.value || '').trim();
 
-  if (!produtoId || !quantidade || quantidade <= 0) {
+  if (!produtoId || quantidade <= 0) {
     toastErro('Informe produto e quantidade > 0');
     return;
   }
 
   try {
-    await apiNoAuth('/api/estoque/saidas', {
+    await apiAuth('/api/estoque/saidas', {
       method: 'POST',
       body: JSON.stringify({ produtoId, quantidade, observacao })
     });
@@ -70,17 +77,24 @@ async function confirmarSaida() {
   }
 }
 
-// ====== listar movimentos na tabela ======
+// ── Listar movimentos ────────────────────────────────────────
 async function carregarMovimentos() {
-  const corpo = document.getElementById('tbodyMovs'); // <tbody id="tbodyMovs">
+  const corpo = document.getElementById('tbodyMovs');
   if (!corpo) return;
+
   try {
-    const { itens = [] } = await apiNoAuth('/api/estoque/movimentos')
-      .catch(async (x) => {
-        // se sua rota retorna array puro e não objeto:
-        const arr = await apiNoAuth('/api/estoque/movimentos');
-        return { itens: Array.isArray(arr) ? arr : [] };
-      });
+    const token = localStorage.getItem('token');
+    const res   = await fetch('/api/estoque/movimentos', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+
+    if (!res.ok) {
+      corpo.innerHTML = '<tr><td colspan="5">Nenhuma movimentação</td></tr>';
+      return;
+    }
+
+    const raw  = await res.json();
+    const itens = Array.isArray(raw) ? raw : (raw.itens || []);
 
     corpo.innerHTML = '';
     if (!itens.length) {
@@ -100,16 +114,32 @@ async function carregarMovimentos() {
       corpo.appendChild(tr);
     }
   } catch (e) {
-    corpo.innerHTML = `<tr><td colspan="5" style="color:#fca5a5;">Erro: ${e.message}</td></tr>`;
+    if (corpo) corpo.innerHTML = `<tr><td colspan="5" style="color:#fca5a5;">Erro: ${e.message}</td></tr>`;
   }
 }
 
-// ====== toasts simples (substitua pelo seu sistema) ======
-function toastOk(msg){ console.log(msg); }
-function toastErro(msg){ console.error(msg); alert('Erro: ' + msg); }
+// ── Scanner de código de barras (opcional) ───────────────────
+function iniciarScanner() {
+  const scannerInput = document.getElementById('scannerInput');
+  if (!scannerInput) return; // Sem o campo no HTML, ignora
 
-// ====== ligar botões se existirem ======
-(function init(){
+  let buffer = '';
+  scannerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      buscarProdutoPorCodigo?.(buffer);
+      buffer = '';
+    } else {
+      buffer += e.key;
+    }
+  });
+}
+
+// ── Toasts ───────────────────────────────────────────────────
+function toastOk(msg)   { console.log(msg); }
+function toastErro(msg) { console.error(msg); alert('Erro: ' + msg); }
+
+// ── Init ─────────────────────────────────────────────────────
+(function init() {
   document.getElementById('btnConfirmarEntrada')
     ?.addEventListener('click', confirmarEntrada);
 
@@ -118,13 +148,5 @@ function toastErro(msg){ console.error(msg); alert('Erro: ' + msg); }
 
   preencherSelectProdutos();
   carregarMovimentos();
+  iniciarScanner();
 })();
-
-scannerInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    buscarProdutoPorCodigo(buffer);
-    buffer = '';
-  } else {
-    buffer += e.key;
-  }
-});
