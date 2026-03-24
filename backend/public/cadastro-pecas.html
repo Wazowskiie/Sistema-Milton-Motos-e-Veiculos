@@ -94,6 +94,12 @@
     document.getElementById('formCadastro').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login-cadastro.html';
+        return;
+      }
+
       const nome = document.getElementById('nome').value.trim();
       const tipo = document.getElementById('tipo').value.trim();
       const descricao = document.getElementById('descricao').value.trim();
@@ -105,9 +111,12 @@
       const mensagem = document.getElementById('mensagem');
 
       try {
-        const resposta = await fetch('/api/pecas/cadastro', {
+        const resposta = await fetch('/api/produtos', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
           body: JSON.stringify({ nome, tipo, descricao, preco, estoque, fornecedor, codigo })
         });
 
@@ -118,7 +127,7 @@
           mensagem.style.color = 'green';
           e.target.reset();
         } else {
-          mensagem.textContent = data.error || 'Erro ao cadastrar.';
+          mensagem.textContent = data.error || data.erro || 'Erro ao cadastrar.';
           mensagem.style.color = 'red';
         }
       } catch (err) {
